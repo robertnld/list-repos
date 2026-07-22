@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 )
 
 // embed directive to include the web templates in the binary
@@ -19,6 +20,12 @@ var templates = template.Must(
 func init() {
 	// Define command-line flags
 	flag.String("dir", ".", "Directory to list repositories from")
+
+	isGitInstalled := isGitInstalled()
+	if !isGitInstalled {
+		fmt.Println("Git is not installed or not available in the system's PATH.")
+		os.Exit(1)
+	}
 }
 
 func main() {
@@ -33,6 +40,15 @@ func main() {
 		return
 	}
 
+	// Filter out non-Git repositories
+	var gitRepositories []string
+	for _, dir := range directories {
+		fullPath := listDir + "/" + dir
+		if isGitRepository(fullPath) {
+			gitRepositories = append(gitRepositories, dir)
+		}
+	}
+	
 	// Set up the HTTP server and routes
 	mux := http.NewServeMux()
 	// Serve static files from the embedded filesystem
@@ -43,9 +59,8 @@ func main() {
 		Directories []string
 	}{
 		Title:       "Repository List",
-		Directories: directories,
+		Directories: gitRepositories,
 	}
-
 
 	// Handle the index route
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

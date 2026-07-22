@@ -18,3 +18,19 @@ func listDirectories(path string) ([]string, error) {
 
 	return directories, nil
 }
+
+// Test that Git is installed and available in the system's PATH
+func isGitInstalled() bool {
+	_, err := os.Stat("/usr/bin/git")
+	return err == nil
+}
+
+// Test that directory is a Git repository by checking for the presence of a .git folder
+func isGitRepository(path string) bool {
+	gitDir := path + "/.git"
+	info, err := os.Stat(gitDir)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
