@@ -33,13 +33,23 @@ func main() {
 		return
 	}
 
+	// Set up the HTTP server and routes
 	mux := http.NewServeMux()
 	// Serve static files from the embedded filesystem
 	mux.Handle("/static/", http.FileServer(http.FS(webFiles)))
 
+	data := struct {
+		Title       string
+		Directories []string
+	}{
+		Title:       "Repository List",
+		Directories: directories,
+	}
+
+
 	// Handle the index route
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := templates.ExecuteTemplate(w, "index.html", directories)
+		err := templates.ExecuteTemplate(w, "index.html", data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -51,4 +61,3 @@ func main() {
 		fmt.Println("Error starting server:", err)
 	}
 }
-

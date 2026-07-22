@@ -1,9 +1,21 @@
 <html>
     <head>
         <link rel="stylesheet" href="/static/css/style.css">
-        <title>Repositories</title>
+        <title>{{ .Title }}</title>
     </head>
     <body>
-        <h1>Welcome to the Index Page</h1>
+        <main>
+        <h1>{{ .Title }}</h1>
+
+        {{ if .Directories }}
+            <ul class="repository-list">
+                {{ range .Directories }}
+                    <li>{{ . }}</li>
+                {{ end }}
+            </ul>
+        {{ else }}
+            <p>No repositories found.</p>
+        {{ end }}
+    </main>
     </body>
 </html>
