@@ -27,8 +27,7 @@ func main() {
 	// Parse command-line flags
 	cfg := parseFlags()
 
-	isGitInstalled := isGitInstalled()
-	if !isGitInstalled {
+	if !isGitInstalled() {
 		fmt.Println("Git is not installed or not available in the system's PATH.")
 		os.Exit(1)
 	}
