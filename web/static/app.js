@@ -2,9 +2,11 @@
 
 const refreshButton = document.querySelector("#refresh-button");
 
-refreshButton.addEventListener("click", () => {
-    refreshButton.disabled = true;
-    refreshButton.textContent = "Refreshing...";
+if (refreshButton) {
+    refreshButton.addEventListener("click", () => {
+        refreshButton.disabled = true;
+        refreshButton.textContent = "Refreshing...";
 
-    window.location.reload();
-});
+        window.location.reload();
+    });
+}

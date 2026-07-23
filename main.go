@@ -5,11 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net/http"
 	"os"
 )
 
 // embed directive to include the web templates in the binary
+//
 //go:embed web/templates/* web/static/*
 var webFiles embed.FS
 
@@ -33,39 +35,56 @@ func main() {
 	flag.Parse()
 	listDir := flag.Lookup("dir").Value.String()
 
-	// Get the list of directories in the specified path
-	directories, err := listDirectories(listDir)
+	// Get the embedded static files for serving
+	staticFiles, err := fs.Sub(webFiles, "web/static")
 	if err != nil {
-		fmt.Println("Error listing directories:", err)
+		fmt.Println("Error accessing embedded static files:", err)
 		return
 	}
 
-	// Filter out non-Git repositories
-	var gitRepositories []string
-	for _, dir := range directories {
-		fullPath := listDir + "/" + dir
-		if isGitRepository(fullPath) {
-			gitRepositories = append(gitRepositories, dir)
-		}
-	}
-	
 	// Set up the HTTP server and routes
 	mux := http.NewServeMux()
 	// Serve static files from the embedded filesystem
-	mux.Handle("/static/", http.FileServer(http.FS(webFiles)))
-
-	data := struct {
-		Title       string
-		Directories []string
-	}{
-		Title:       "Repository List",
-		Directories: gitRepositories,
-	}
+	mux.Handle(
+		"/static/",
+		http.StripPrefix(
+			"/static/",
+			http.FileServer(http.FS(staticFiles)),
+		),
+	)
 
 	// Handle the index route
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := templates.ExecuteTemplate(w, "index.html", data)
+		// Get the list of directories in the specified path
+		directories, err := listDirectories(listDir)
 		if err != nil {
+			http.Error(
+				w,
+				"Error listing directories: "+err.Error(),
+				http.StatusInternalServerError,
+			)
+			fmt.Println("Error listing directories:", err)
+			return
+		}
+
+		// Filter out non-Git repositories
+		var gitRepositories []string
+		for _, dir := range directories {
+			fullPath := listDir + "/" + dir
+			if isGitRepository(fullPath) {
+				gitRepositories = append(gitRepositories, dir)
+			}
+		}
+
+		data := struct {
+			Title       string
+			Directories []string
+		}{
+			Title:       "Repository List",
+			Directories: gitRepositories,
+		}
+
+		if err := templates.ExecuteTemplate(w, "index.html", data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
