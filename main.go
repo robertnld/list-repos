@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -25,25 +24,20 @@ type pageData struct {
 }
 
 func main() {
-	// Handle thecommand-line flags
-	listDir := flag.String(
-		"dir",
-		".",
-		"Directory to list repositories from",
-	)
-	flag.Parse()
+	// Parse command-line flags
+	cfg := parseFlags()
+
+	isGitInstalled := isGitInstalled()
+	if !isGitInstalled {
+		fmt.Println("Git is not installed or not available in the system's PATH.")
+		os.Exit(1)
+	}
 	
 	// Get the static files for serving
 	staticFiles, err := fs.Sub(webFiles, "web/static")
 	if err != nil {
 		fmt.Println("Error accessing embedded static files:", err)
 		return
-	}
-
-	isGitInstalled := isGitInstalled()
-	if !isGitInstalled {
-		fmt.Println("Git is not installed or not available in the system's PATH.")
-		os.Exit(1)
 	}
 
 	// Set up the HTTP server and routes
@@ -60,7 +54,7 @@ func main() {
 	// Handle the index route
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Get the list of directories in the specified path
-		directories, err := listDirectories(*listDir)
+		directories, err := listDirectories(cfg.listDir)
 		if err != nil {
 			http.Error(
 				w,
@@ -74,7 +68,7 @@ func main() {
 		// Filter out non-Git repositories
 		var gitRepositories []string
 		for _, dir := range directories {
-			fullPath := *listDir + "/" + dir
+			fullPath := cfg.listDir + "/" + dir
 			if isGitRepository(fullPath) {
 				gitRepositories = append(gitRepositories, dir)
 			}
