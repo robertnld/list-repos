@@ -18,28 +18,32 @@ var webFiles embed.FS
 var templates = template.Must(
 	template.ParseFS(webFiles, "web/templates/*.html"),
 )
+const pageTitle = "Repository List"
+type pageData struct {
+    Title        string
+    Repositories []string
+}
 
-func init() {
-	// Define command-line flags
-	flag.String("dir", ".", "Directory to list repositories from")
+func main() {
+	// Handle thecommand-line flags
+	listDir := flag.String(
+		"dir",
+		".",
+		"Directory to list repositories from",
+	)
+	flag.Parse()
+	
+	// Get the static files for serving
+	staticFiles, err := fs.Sub(webFiles, "web/static")
+	if err != nil {
+		fmt.Println("Error accessing embedded static files:", err)
+		return
+	}
 
 	isGitInstalled := isGitInstalled()
 	if !isGitInstalled {
 		fmt.Println("Git is not installed or not available in the system's PATH.")
 		os.Exit(1)
-	}
-}
-
-func main() {
-	// Handle command-line flags
-	flag.Parse()
-	listDir := flag.Lookup("dir").Value.String()
-
-	// Get the embedded static files for serving
-	staticFiles, err := fs.Sub(webFiles, "web/static")
-	if err != nil {
-		fmt.Println("Error accessing embedded static files:", err)
-		return
 	}
 
 	// Set up the HTTP server and routes
@@ -56,7 +60,7 @@ func main() {
 	// Handle the index route
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Get the list of directories in the specified path
-		directories, err := listDirectories(listDir)
+		directories, err := listDirectories(*listDir)
 		if err != nil {
 			http.Error(
 				w,
@@ -70,18 +74,15 @@ func main() {
 		// Filter out non-Git repositories
 		var gitRepositories []string
 		for _, dir := range directories {
-			fullPath := listDir + "/" + dir
+			fullPath := *listDir + "/" + dir
 			if isGitRepository(fullPath) {
 				gitRepositories = append(gitRepositories, dir)
 			}
 		}
 
-		data := struct {
-			Title       string
-			Directories []string
-		}{
-			Title:       "Repository List",
-			Directories: gitRepositories,
+		data := pageData{
+			Title:        pageTitle,
+			Repositories: gitRepositories,
 		}
 
 		if err := templates.ExecuteTemplate(w, "index.html", data); err != nil {
