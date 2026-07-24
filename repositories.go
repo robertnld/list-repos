@@ -59,7 +59,18 @@ func listGitRepositories(path string) ([]Repository, error) {
 	for _, dir := range directories {
 		fullPath := path + "/" + dir
 		if isGitRepository(fullPath) {
-			gitRepositories = append(gitRepositories, Repository{Name: dir})
+			branches, err := listGitBranches(fullPath)
+			if err != nil {
+				return nil, err
+			}
+			var branchStructs []Branch
+			for _, branch := range branches {
+				branchStructs = append(branchStructs, Branch{Name: branch})
+			}
+			gitRepositories = append(gitRepositories, Repository{
+				Name:     dir,
+				Branches: branchStructs,
+			})
 		}
 	}
 	return gitRepositories, nil
