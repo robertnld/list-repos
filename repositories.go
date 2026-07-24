@@ -1,6 +1,10 @@
 package main
 
-import "os"
+import (
+	"os"
+	"os/exec"
+	"strings"
+)
 
 func listDirectories(path string) ([]string, error) {
 	var directories []string
@@ -50,4 +54,21 @@ func listGitRepositories(path string) ([]string, error) {
 		}
 	}
 	return gitRepositories, nil
+}
+
+// Show the branches of the repository in the specified directory
+func listGitBranches(repoPath string) ([]string, error) {
+	
+	// List the branches using the Git command
+	cmd := exec.Command("git", "-C", repoPath, "branch", "--list")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	branches := strings.Split(strings.TrimSpace(string(output)), "\n")
+	for i, branch := range branches {
+		branches[i] = strings.TrimSpace(branch)
+	}
+	return branches, nil
 }
