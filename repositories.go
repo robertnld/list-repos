@@ -34,3 +34,20 @@ func isGitRepository(path string) bool {
 	}
 	return info.IsDir()
 }
+
+// List the Git repositories in the specified directory
+func listGitRepositories(path string) ([]string, error) {
+	directories, err := listDirectories(path)
+		if err != nil {
+			return nil, err
+		}
+
+	var gitRepositories []string
+	for _, dir := range directories {
+		fullPath := path + "/" + dir
+		if isGitRepository(fullPath) {
+			gitRepositories = append(gitRepositories, dir)
+		}
+	}
+	return gitRepositories, nil
+}
