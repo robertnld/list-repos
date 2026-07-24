@@ -22,9 +22,10 @@ const pageTitle = "Repository List"
 
 type pageData struct {
 	Title        string
-	Repositories []string
-	Branches     []string
+	Repositories []Repository
 }
+
+
 
 func newServer(cfg config) (*http.ServeMux, error) {
 
