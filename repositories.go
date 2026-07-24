@@ -38,9 +38,9 @@ func isGitRepository(path string) bool {
 // List the Git repositories in the specified directory
 func listGitRepositories(path string) ([]string, error) {
 	directories, err := listDirectories(path)
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
 
 	var gitRepositories []string
 	for _, dir := range directories {
