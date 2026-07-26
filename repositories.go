@@ -8,6 +8,7 @@ import (
 
 type Repository struct {
 	Name     string
+	LastCommit string
 	Branches []Branch
 }
 
@@ -59,6 +60,14 @@ func listGitRepositories(path string) ([]Repository, error) {
 	for _, dir := range directories {
 		fullPath := path + "/" + dir
 		if isGitRepository(fullPath) {
+			// Get last commit message
+			cmd := exec.Command("git", "-C", fullPath, "log", "-1", "--pretty=%B")
+			LastCommit, err := cmd.Output()
+			if err != nil {
+				return nil, err
+			}
+
+			// Get branches
 			branches, err := listGitBranches(fullPath)
 			if err != nil {
 				return nil, err
@@ -69,6 +78,7 @@ func listGitRepositories(path string) ([]Repository, error) {
 			}
 			gitRepositories = append(gitRepositories, Repository{
 				Name:     dir,
+				LastCommit: strings.TrimSpace(string(LastCommit)),
 				Branches: branchStructs,
 			})
 		}

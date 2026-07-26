@@ -30,10 +30,18 @@
             <div class="list-group">
                 {{ range .Repositories }}
                 <div class="list-group-item">
-                    {{ . }}
+                    {{ .Name }}
+                    <br>
+                    Last Commit: {{ .LastCommit }}
+                    {{ if .Branches }}
+                        <ul>
+                        {{ range .Branches }}
+                            <li>{{ .Name }}</li>
+                        {{ end }}
+                        </ul>
+                    {{ end }}
                 </div>
                 {{ end }}
-
             </div>
 
             {{ else }}
