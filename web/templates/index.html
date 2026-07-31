@@ -3,60 +3,92 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light">
 
         <title>{{ .Title }}</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-            crossorigin="anonymous">
         <link rel="stylesheet" href="/static/style.css">
-
     </head>
     <body>
-        <main class="container py-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">{{ .Title }}</h1>
+        <header class="site-header">
+            <div class="shell header-inner">
+                <a class="brand" href="/" aria-label="Repository index home">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img">
+                            <path d="M22.2 10.4 13.6 1.8a2.3 2.3 0 0 0-3.2 0L8.6 3.6l2.3 2.3a2.7 2.7 0 0 1 3.4 3.4l2.2 2.2a2.7 2.7 0 1 1-1.6 1.6L13 11.2v5.1a2.7 2.7 0 1 1-2.2 0V11a2.7 2.7 0 0 1-1.5-3.5L7 5.2l-5.2 5.2a2.3 2.3 0 0 0 0 3.2l8.6 8.6a2.3 2.3 0 0 0 3.2 0l8.6-8.6a2.3 2.3 0 0 0 0-3.2Z"/>
+                        </svg>
+                    </span>
+                    <span>{{ .Title }}</span>
+                </a>
 
-                <button
-                    id="refresh-button"
-                    type="button"
-                    class="btn btn-primary">
-                    Refresh
+                <button id="refresh-button" type="button" class="refresh-button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11a8 8 0 1 0-2.34 5.66M20 5v6h-6"/>
+                    </svg>
+                    <span>Refresh</span>
                 </button>
             </div>
+        </header>
+
+        <main class="shell page-content">
+            <section class="intro" aria-labelledby="page-title">
+                <p class="eyebrow">Local workspace</p>
+                <h1 id="page-title">Your Git repositories</h1>
+                <p class="intro-copy">Browse the repositories discovered on this machine, check their latest commit, and see every local branch at a glance.</p>
+            </section>
 
             {{ if .Repositories }}
-            <div class="list-group">
-                {{ range .Repositories }}
-                <div class="list-group-item">
-                    {{ .Name }}
-                    <br>
-                    Last Commit: {{ .LastCommit }}
-                    {{ if .Branches }}
-                        <ul>
-                        {{ range .Branches }}
-                            <li>{{ .Name }}</li>
-                        {{ end }}
-                        </ul>
+            <section class="repository-section" aria-labelledby="repository-heading">
+                <div class="section-heading">
+                    <h2 id="repository-heading">Repositories</h2>
+                    <span class="repo-count">{{ len .Repositories }} found</span>
+                </div>
+
+                <div class="repository-list">
+                    {{ range .Repositories }}
+                    <article class="repository-card">
+                        <div class="repository-main">
+                            <span class="repo-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <circle cx="6" cy="5" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="19" r="2"/>
+                                    <path d="M6 7v10M8 7c5 0 3 7 8 7h2M18 8v6"/>
+                                </svg>
+                            </span>
+                            <div class="repo-copy">
+                                <h3>{{ .Name }}</h3>
+                                <p class="commit-label">Latest commit</p>
+                                <p class="commit-message">{{ .LastCommit }}</p>
+                            </div>
+                        </div>
+
+                        <div class="branch-panel">
+                            <p class="branch-heading">Branches</p>
+                            {{ if .Branches }}
+                            <ul class="branch-list">
+                                {{ range .Branches }}
+                                <li><span aria-hidden="true"></span>{{ .Name }}</li>
+                                {{ end }}
+                            </ul>
+                            {{ else }}
+                            <p class="no-branches">No local branches</p>
+                            {{ end }}
+                        </div>
+                    </article>
                     {{ end }}
                 </div>
-                {{ end }}
-            </div>
-
+            </section>
             {{ else }}
-            <div class="alert alert-secondary" role="alert">
-                No repositories found.
-            </div>
+            <section class="empty-state" aria-live="polite">
+                <span class="empty-icon" aria-hidden="true">∅</span>
+                <h2>No repositories found</h2>
+                <p>There are no Git repositories in the configured directory yet.</p>
+            </section>
             {{ end }}
         </main>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous"></script>
+        <footer class="site-footer">
+            <div class="shell">Repository index <span aria-hidden="true">·</span> Powered by Git</div>
+        </footer>
 
         <script src="/static/app.js"></script>
-
     </body>
 </html>
