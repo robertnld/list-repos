@@ -1,0 +1,33 @@
+services:
+  build:
+    image: golang:1.26-alpine
+    working_dir: /src
+    environment:
+      CGO_ENABLED: "0"
+    volumes:
+      - .:/src:ro
+      - executable:/output
+    command:
+      - /bin/sh
+      - -c
+      - go build -trimpath -ldflags='-s -w' -o /output/list-repos.new . && mv /output/list-repos.new /output/list-repos
+    restart: "no"
+
+  app:
+    # This small multi-architecture image supplies the Git executable used by
+    # list-repos at runtime. Docker selects the Pi's ARM variant automatically.
+    image: alpine/git:latest
+    depends_on:
+      build:
+        condition: service_completed_successfully
+    entrypoint: ["/output/list-repos"]
+    command: ["-dir", "/repositories"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - executable:/output:ro
+      - /srv/git:/repositories:ro
+    restart: unless-stopped
+
+volumes:
+  executable:
