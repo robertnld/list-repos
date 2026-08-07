@@ -22,8 +22,10 @@ const pageTitle = "Repository List"
 
 type pageData struct {
 	Title        string
-	Repositories []string
+	Repositories []Repository
 }
+
+
 
 func newServer(cfg config) (*http.ServeMux, error) {
 
@@ -59,6 +61,8 @@ func newServer(cfg config) (*http.ServeMux, error) {
 			)
 			return
 		}
+
+		// TODO: For each repository, get the list of branches and include them in the pageData
 
 		data := pageData{
 			Title:        pageTitle,
