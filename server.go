@@ -51,7 +51,7 @@ func newServer(cfg config) (*http.ServeMux, error) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		// Get the list of repositories in the specified path
-		gitRepositories, err := listGitRepositories(cfg.listDir)
+		gitRepositories, err := listGitRepositories(cfg.ListDir)
 		if err != nil {
 			log.Printf("Error listing Git repositories: %v", err)
 			http.Error(
