@@ -21,8 +21,8 @@ func main() {
 	}
 
 	// Start the HTTP server
-	log.Println("Starting server on port", cfg.port)
-	if err := http.ListenAndServe(":"+cfg.port, mux); err != nil {
+	log.Println("Starting server on port", cfg.Port)
+	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		log.Fatalf("start server: %v", err)
 	}
 }
