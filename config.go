@@ -10,7 +10,7 @@ import (
 
 // Structure for incoming parameters
 type config struct {
-	// The port to listen on
+	// The port to listen on (TODO: will be removed in the future)
 	Port string `yaml:"port"`
 	// The directory to scan for repositories
 	ListDir string `yaml:"repo_dir"`
@@ -38,7 +38,6 @@ func parseFlags() config {
 		// Handle error, e.g., log and exit
 		log.Fatal(err)
 	}
-
 	return cfg
 }
 
@@ -53,11 +52,6 @@ func readConfigFile(path string) (config, error) {
 	// Read the config file
 	data, err := os.ReadFile(path)
 	if err != nil {
-		// If the file does not exist, return an empty config struct and no error
-		if os.IsNotExist(err) {
-			return config{}, nil
-		}
-		// If the file exists but is invalid, return an error
 		return config{}, err
 	}
 
@@ -65,7 +59,6 @@ func readConfigFile(path string) (config, error) {
 	var cfg config
 	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
-		// If the file exists but is invalid, return an error
 		return config{}, err
 	}
 	log.Println(cfg)
