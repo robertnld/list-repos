@@ -30,3 +30,8 @@ func GetLatestCommitMessage(path string) (string, error) {
 	}
 	return string(output), nil
 }
+
+
+func main () {
+	println("Starting cli...")
+}
