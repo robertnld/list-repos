@@ -1,7 +1,6 @@
 package main
 
 import (
-	"list-repos/gitreader"
 	"log"
 	"net/http"
 )
@@ -9,8 +8,6 @@ import (
 func main() {
 	// Parse command-line flags
 	cfg := parseFlags()
-
-	gitreader.PrintBanner()
 
 	// Set up the HTTP server
 	mux, err := newServer(cfg)

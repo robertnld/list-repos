@@ -5,9 +5,10 @@ import (
 	"os/exec"
 )
 
-
-func PrintBanner() {
-	println("Starting gitreader...")
+// PrintBanner returns a banner message as test
+func Banner() (string, error) {
+	msg := `List-repos for listing Git repos ...`
+	return msg, nil
 }
 
 // Test that directory is a Git repository by checking for the presence of a .git folder
@@ -29,9 +30,4 @@ func GetLatestCommitMessage(path string) (string, error) {
 		return "", err
 	}
 	return string(output), nil
-}
-
-
-func main () {
-	println("Starting cli...")
 }

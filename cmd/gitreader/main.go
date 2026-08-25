@@ -1,5 +1,15 @@
 package main
 
+import (
+	"list-repos/gitreader"
+)
+
+
 func main() {
-	println("Starting cli...")
+	line, err := gitreader.Banner()
+	if err != nil {
+		println("Error:", err.Error())
+		return
+	}
+	println(line)
 }
