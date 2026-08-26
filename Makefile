@@ -1,11 +1,11 @@
 GO ?= go
 BIN_DIR := dist
 
-.PHONY: all build server gitreader test clean
+.PHONY: all build server gitreader test clean catgit
 
 all: build
 
-build: server gitreader
+build: server gitreader catgit
 
 server:
 	mkdir -p $(BIN_DIR)
@@ -14,6 +14,10 @@ server:
 gitreader:
 	mkdir -p $(BIN_DIR)
 	$(GO) build -o $(BIN_DIR)/gitreader ./cmd/gitreader
+
+catgit:
+	mkdir -p $(BIN_DIR)
+	$(GO) build -o $(BIN_DIR)/catgit ./cmd/catgit
 
 test:
 	$(GO) test ./...
