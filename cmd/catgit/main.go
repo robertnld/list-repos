@@ -11,6 +11,14 @@ func main() {
 	filename := flag.String("file", "", "Git file to read")
 	flag.Parse()
 
+	// Must have parameter
+	// TODO: support STDIN as well
+	if flag.NFlag() == 0 {
+		println("Usage: catgit -file <git_file>")
+		os.Exit(1)
+	}
+
+	// Open the file for reading
 	fp, err := os.OpenFile(*filename, os.O_RDONLY, 0)
 	if err != nil {
 		println("Error opening file:", err.Error())
