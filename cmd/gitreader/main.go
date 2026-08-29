@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"list-repos/gitreader"
 )
 
@@ -33,10 +34,10 @@ func main() {
 	}
 
 	// Get the latest commit message for the Git repository at the specified path
-	commit_message, err := gitreader.GetLatestCommitMessage(cfg.ListDir)
+	head, err := gitreader.GetHead(cfg.ListDir)
 	if err != nil {
 		println("Error:", err.Error())
 		return
 	}
-	println("Latest commit message:", commit_message)
+	fmt.Printf("HEAD: %s\n", head)
 }

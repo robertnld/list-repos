@@ -1,6 +1,7 @@
 package gitreader
 
 import (
+	"log"
 	"os"
 	"os/exec"
 )
@@ -19,6 +20,24 @@ func IsGitRepository(path string) bool {
 		return false
 	}
 	return info.IsDir()
+}
+
+
+// Get HEAD of the repo
+func GetHead(repo string) (string, error) {
+	fp, err := os.OpenFile(repo + "/.git/HEAD", os.O_RDONLY, 0)
+	if err != nil {
+		println("Error opening file:", err.Error())
+		os.Exit(1)
+	}
+	data, err := os.ReadFile(fp.Name())
+	if err != nil {
+		println("Error reading file:", err.Error())
+		os.Exit(1)
+	}
+	defer fp.Close()
+	log.Printf("HEAD: %s", string(data))
+	return string(data), nil
 }
 
 
