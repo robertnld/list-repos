@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"list-repos/gitreader"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 // Structure for incoming parameters
@@ -18,26 +21,30 @@ func main() {
 	flag.StringVar(&cfg.ListDir, "list-dir", ".", "The directory to scan for repositories")
 	flag.Parse()
 
-	// Print the banner message as test
-	line, err := gitreader.Banner()
+	// Convert the provided directory path to an absolute path
+	absPath, err := filepath.Abs(cfg.ListDir)
 	if err != nil {
-		println("Error:", err.Error())
-		return
+		println("Error getting absolute path:", err.Error())
+		os.Exit(1)
 	}
-	println(line)
-
+	cfg.ListDir = absPath
+	log.Printf("Absolute repo directory: %s", cfg.ListDir)
+	
 	// Check if the specified directory is a Git repository
 	if gitreader.IsGitRepository(cfg.ListDir) {
 		println("This is a Git repository.")
 	} else {
 		println("This is NOT a Git repository.")
+		os.Exit(1)
 	}
 
+	// Get commit object
+
 	// Get the latest commit message for the Git repository at the specified path
-	head, err := gitreader.GetHead(cfg.ListDir)
+	value, err := gitreader.GetLatestCommitMessage(cfg.ListDir)
 	if err != nil {
 		println("Error:", err.Error())
 		return
 	}
-	fmt.Printf("HEAD: %s\n", head)
+	fmt.Printf("Returned value: %s\n", value)
 }
