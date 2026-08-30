@@ -9,7 +9,7 @@ build: server gitreader readgit catgit
 
 server:
 	mkdir -p $(BIN_DIR)
-	$(GO) build -o $(BIN_DIR)/list-repos .
+	$(GO) build -o $(BIN_DIR)/list-repos ./server
 
 readgit:
 	mkdir -p $(BIN_DIR)
