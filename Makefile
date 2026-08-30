@@ -3,7 +3,7 @@ BIN_DIR := dist
 
 .PHONY: all build server readgit catgit test clean
 
-all: build
+all: clean build
 
 build: server gitreader readgit catgit
 

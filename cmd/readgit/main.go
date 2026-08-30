@@ -32,13 +32,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Get commit object
-
 	// Get the latest commit message for the Git repository at the specified path
 	value, err := gitreader.GetLatestCommitMessage(*listdir)
 	if err != nil {
 		println("Error:", err.Error())
 		return
 	}
-	fmt.Printf("Returned value: %s\n", value)
+	fmt.Printf("Returned value: \n%s\n", value)
 }
