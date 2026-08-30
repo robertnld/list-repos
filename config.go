@@ -41,7 +41,6 @@ func parseFlags() config {
 	return cfg
 }
 
-
 // Function to read the config file and return a config struct
 func readConfigFile(path string) (config, error) {
 	// Implement reading the config file and returning a config struct

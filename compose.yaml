@@ -21,12 +21,13 @@ services:
       build:
         condition: service_completed_successfully
     entrypoint: ["/output/list-repos"]
-    command: ["-dir", "/repositories"]
+    command: ["-configuration", "/config.yaml"]
     ports:
       - "8088:8008"
     volumes:
       - executable:/output:ro
-      - /srv/git:/repositories:ro
+      - ./config.yaml:/config.yaml:ro
+      - /home/robert/sources:/home/robert/sources:ro
     restart: unless-stopped
 
 volumes:

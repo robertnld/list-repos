@@ -25,8 +25,6 @@ type pageData struct {
 	Repositories []Repository
 }
 
-
-
 func newServer(cfg config) (*http.ServeMux, error) {
 
 	mux := http.NewServeMux()

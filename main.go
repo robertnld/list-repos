@@ -9,11 +9,6 @@ func main() {
 	// Parse command-line flags
 	cfg := parseFlags()
 
-	// Prerequisite checks for running the application
-	if !isGitInstalled() {
-		log.Fatal("Git is not installed or not available in the system's PATH.")
-	}
-
 	// Set up the HTTP server
 	mux, err := newServer(cfg)
 	if err != nil {

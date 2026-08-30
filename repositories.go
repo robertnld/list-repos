@@ -1,15 +1,16 @@
 package main
 
 import (
+	"list-repos/gitreader"
 	"os"
 	"os/exec"
 	"strings"
 )
 
 type Repository struct {
-	Name     string
+	Name       string
 	LastCommit string
-	Branches []Branch
+	Branches   []Branch
 }
 
 type Branch struct {
@@ -33,22 +34,6 @@ func listDirectories(path string) ([]string, error) {
 	return directories, nil
 }
 
-// Test that Git is installed and available in the system's PATH
-func isGitInstalled() bool {
-	_, err := os.Stat("/usr/bin/git")
-	return err == nil
-}
-
-// Test that directory is a Git repository by checking for the presence of a .git folder
-func isGitRepository(path string) bool {
-	gitDir := path + "/.git"
-	info, err := os.Stat(gitDir)
-	if err != nil {
-		return false
-	}
-	return info.IsDir()
-}
-
 // List the Git repositories in the specified directory
 func listGitRepositories(path string) ([]Repository, error) {
 	directories, err := listDirectories(path)
@@ -59,10 +44,9 @@ func listGitRepositories(path string) ([]Repository, error) {
 	var gitRepositories []Repository
 	for _, dir := range directories {
 		fullPath := path + "/" + dir
-		if isGitRepository(fullPath) {
+		if gitreader.IsGitRepository(fullPath) {
 			// Get last commit message
-			cmd := exec.Command("git", "-C", fullPath, "log", "-1", "--pretty=%B")
-			LastCommit, err := cmd.Output()
+			LastCommit, err := gitreader.GetLatestCommitMessage(fullPath)
 			if err != nil {
 				return nil, err
 			}
@@ -77,9 +61,9 @@ func listGitRepositories(path string) ([]Repository, error) {
 				branchStructs = append(branchStructs, Branch{Name: branch})
 			}
 			gitRepositories = append(gitRepositories, Repository{
-				Name:     dir,
+				Name:       dir,
 				LastCommit: strings.TrimSpace(string(LastCommit)),
-				Branches: branchStructs,
+				Branches:   branchStructs,
 			})
 		}
 	}
@@ -88,7 +72,7 @@ func listGitRepositories(path string) ([]Repository, error) {
 
 // Show the branches of the repository in the specified directory
 func listGitBranches(repoPath string) ([]string, error) {
-	
+
 	// List the branches using the Git command
 	cmd := exec.Command("git", "-C", repoPath, "branch", "--list")
 	output, err := cmd.Output()
