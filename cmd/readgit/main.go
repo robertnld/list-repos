@@ -9,29 +9,23 @@ import (
 	"path/filepath"
 )
 
-// Structure for incoming parameters
-type config struct {
-	// The directory to scan for repositories
-	ListDir string `default:"."`
-}
-
 
 func main() {
-	cfg := config{}
-	flag.StringVar(&cfg.ListDir, "list-dir", ".", "The directory to scan for repositories")
+	// Parameters
+	listdir := flag.String("list-dir", ".", "The directory to scan for repositories")
 	flag.Parse()
 
 	// Convert the provided directory path to an absolute path
-	absPath, err := filepath.Abs(cfg.ListDir)
+	absPath, err := filepath.Abs(*listdir)
 	if err != nil {
 		println("Error getting absolute path:", err.Error())
 		os.Exit(1)
 	}
-	cfg.ListDir = absPath
-	log.Printf("Absolute repo directory: %s", cfg.ListDir)
+	*listdir = absPath
+	log.Printf("Absolute repo directory: %s", *listdir)
 	
 	// Check if the specified directory is a Git repository
-	if gitreader.IsGitRepository(cfg.ListDir) {
+	if gitreader.IsGitRepository(*listdir) {
 		println("This is a Git repository.")
 	} else {
 		println("This is NOT a Git repository.")
@@ -41,7 +35,7 @@ func main() {
 	// Get commit object
 
 	// Get the latest commit message for the Git repository at the specified path
-	value, err := gitreader.GetLatestCommitMessage(cfg.ListDir)
+	value, err := gitreader.GetLatestCommitMessage(*listdir)
 	if err != nil {
 		println("Error:", err.Error())
 		return
