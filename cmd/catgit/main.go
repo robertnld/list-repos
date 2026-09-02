@@ -1,45 +1,46 @@
+/*
+Transform any Git object into readable format.
+This is a simple implementation of the `git cat-file` command.
+
+Usage:
+
+	catgit [flags] [path ...]
+
+The flag is:
+
+	    -file string
+			Git file to read
+
+The app does not accept STDIN.
+*/
 package main
 
 import (
-	"compress/zlib"
 	"flag"
-	"io"
+	"fmt"
+	"list-repos/gitreader"
 	"os"
 )
 
+// Main function
+// CLI only, no STDIN
 func main() {
 	filename := flag.String("file", "", "Git file to read")
 	flag.Parse()
 
 	// Must have parameter
-	// TODO: support STDIN as well
 	if flag.NFlag() == 0 {
 		println("Usage: catgit -file <git_file>")
 		os.Exit(1)
 	}
 
-	// Open the file for reading
-	fp, err := os.OpenFile(*filename, os.O_RDONLY, 0)
+	// Get the content of the Git file
+	content, err := gitreader.ReadGitFile(*filename)
 	if err != nil {
-		println("Error opening file:", err.Error())
-		os.Exit(1)
-	}
-	defer fp.Close()
-
-	// Decompress the data using zlib
-	reader, err := zlib.NewReader(fp)
-	if err != nil {
-		println("Error creating zlib reader:", err.Error())
-		os.Exit(1)
-	}
-	defer reader.Close()
-	
-	decompressedData, err := io.ReadAll(reader)
-	if err != nil {
-		println("Error reading decompressed data:", err.Error())
+		fmt.Printf("Error reading Git file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Print the decompressed data
-	println(string(decompressedData))
+	// Print the content to STDOUT
+	fmt.Println(content)
 }
