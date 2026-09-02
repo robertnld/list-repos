@@ -2,6 +2,7 @@ package gitreader
 
 import (
 	"compress/zlib"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -12,13 +13,11 @@ import (
 func getHead(repo string) (string, error) {
 	fp, err := os.OpenFile(repo+"/.git/HEAD", os.O_RDONLY, 0)
 	if err != nil {
-		println("Error opening file:", err.Error())
-		os.Exit(1)
+		return "",fmt.Errorf("error opening file: %v", err)
 	}
 	data, err := os.ReadFile(fp.Name())
 	if err != nil {
-		println("Error reading file:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error reading file: %v", err)
 	}
 	defer fp.Close()
 	log.Printf("HEAD: %s", string(data))
@@ -34,13 +33,11 @@ func getLatestCommit(repo string, head string) (string, error) {
 	branchFile := repo + "/.git/refs/heads/" + branchCommitObject
 	fp, err := os.OpenFile(branchFile, os.O_RDONLY, 0)
 	if err != nil {
-		println("Error opening file:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error opening file: %v", err)
 	}
 	data, err := os.ReadFile(fp.Name())
 	if err != nil {
-		println("Error reading file:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error reading file: %v", err)
 	}
 	defer fp.Close()
 	log.Printf("Latest commit object hash: %s", string(data))
@@ -64,23 +61,20 @@ func getCommitMessage(commitObjectPath string) (string, error) {
 
 	fp, err := os.OpenFile(commitObjectPath, os.O_RDONLY, 0)
 	if err != nil {
-		println("Error opening commit file:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error opening commit file: %v", err)
 	}
 	defer fp.Close()
 
 	// Decompress the data using zlib
 	reader, err := zlib.NewReader(fp)
 	if err != nil {
-		println("Error creating zlib reader:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error creating zlib reader: %v", err)
 	}
 	defer reader.Close()
 	
 	decompressedData, err := io.ReadAll(reader)
 	if err != nil {
-		println("Error reading decompressed data:", err.Error())
-		os.Exit(1)
+		return "", fmt.Errorf("error reading decompressed data: %v", err)
 	}
 
 	// Print the decompressed data

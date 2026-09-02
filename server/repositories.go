@@ -71,6 +71,7 @@ func listGitRepositories(path string) ([]Repository, error) {
 }
 
 // Show the branches of the repository in the specified directory
+// TODO
 func listGitBranches(repoPath string) ([]string, error) {
 
 	// List the branches using the Git command
