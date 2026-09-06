@@ -1,10 +1,11 @@
 package gitreader
 
 import (
+	"bytes"
 	"compress/zlib"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -20,7 +21,7 @@ func getHead(repo string) (string, error) {
 		return "", fmt.Errorf("error reading file: %v", err)
 	}
 	defer fp.Close()
-	log.Printf("HEAD: %s", string(data))
+	slog.Debug("HEAD", "data", string(data))
 	return string(data), nil
 }
 
@@ -40,7 +41,7 @@ func getLatestCommit(repo string, head string) (string, error) {
 		return "", fmt.Errorf("error reading file: %v", err)
 	}
 	defer fp.Close()
-	log.Printf("Latest commit object hash: %s", string(data))
+	slog.Debug("Latest commit object hash", "data", string(data))
 	return string(data), nil
 }
 
@@ -51,7 +52,7 @@ func getCommitObjectPath(repo string, commitHash string) (string, error) {
 	commitObjectPath := (
 		strings.TrimSpace(
 			repo + "/.git/objects/" + commitHash[:2] + "/" + commitHash[2:]))
-	log.Printf("Commit object path: %s", commitObjectPath)
+	slog.Debug("Commit object path", "data", commitObjectPath)
 	return commitObjectPath, nil
 }
 
@@ -71,13 +72,19 @@ func getCommitMessage(commitObjectPath string) (string, error) {
 		return "", fmt.Errorf("error creating zlib reader: %v", err)
 	}
 	defer reader.Close()
-	
 	decompressedData, err := io.ReadAll(reader)
 	if err != nil {
 		return "", fmt.Errorf("error reading decompressed data: %v", err)
 	}
+	slog.Debug("Decompressed commit object data", "data", string(decompressedData))
 
-	// Print the decompressed data
-	log.Printf("Decompressed commit object data: %s", string(decompressedData))
-	return string(decompressedData), nil
+	// Extract the commit message from the decompressed data
+	parts := bytes.SplitN(decompressedData, []byte{0}, 2)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("invalid commit object format")
+	}
+	commitMessage := string(parts[1])
+ 
+	slog.Debug("Commit message", "data", commitMessage)
+	return commitMessage, nil
 }

@@ -6,16 +6,32 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 // Test that directory is a Git repository by checking for the presence of a .git folder
-func IsGitRepository(path string) bool {
-	gitDir := path + "/.git"
+func IsGitRepository(path string) (bool, error) {
+	// Convert the incoming directory path to an absolute path
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return false, fmt.Errorf("error getting absolute path: %v", err)
+	}
+
+	gitDir := absPath + "/.git"
 	info, err := os.Stat(gitDir)
 	if err != nil {
-		return false
+		if os.IsNotExist(err) {
+			return false, fmt.Errorf(".git directory does not exist")
+		} else {
+			return false, fmt.Errorf("error stating .git directory: %v", err)
+		}
+		
 	}
-	return info.IsDir()
+	if !info.IsDir() {
+		return false, fmt.Errorf(".git exists but is not a directory")
+	}
+
+	return true, nil
 }
 
 

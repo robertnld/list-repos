@@ -4,7 +4,7 @@ The command does not use git.
 
 Usage:
 
-	readgit [OPTIONS] <path>
+	readgit [flags] <path>
 
 The options are	:
 
@@ -31,49 +31,39 @@ import (
 	"flag"
 	"fmt"
 	"list-repos/gitreader"
-	"log"
 	"os"
-	"path/filepath"
+)
+
+var repoDir = flag.String(
+	"path",
+	".",
+	"directory path of the Git repository",
+)
+var latestCommitMessage = flag.Bool(
+	"latest",
+	false,
+	"print the latest commit message",
 )
 
 func main() {
-	latestCommitMessage := flag.Bool(
-		"latest",
-		false,
-		"print the latest commit message",
-	)
 	flag.Parse()
 
-	listDir := "."
-	if flag.NArg() > 0 {
-		listDir = flag.Arg(0)
-	}
-	if flag.NArg() > 1 {
-		println("Error: Too many arguments. Only one directory path is allowed.")
-		os.Exit(1)
-	}
 
-	// Convert the provided directory path to an absolute path
-	absPath, err := filepath.Abs(listDir)
+	// Only if the directory has a Git repository
+	isGitRepo, err := gitreader.IsGitRepository(*repoDir)
 	if err != nil {
-		println("Error getting absolute path:", err.Error())
+		println("Error:", err.Error())
 		os.Exit(1)
 	}
-	listDir = absPath
-	log.Printf("Absolute repo directory: %s", listDir)
-
-	// Check if the specified directory is a Git repository
-	if gitreader.IsGitRepository(listDir) {
-		println("This is a Git repository.")
-	} else {
+	if !isGitRepo {
 		println("This is NOT a Git repository.")
 		os.Exit(1)
-	}
+	}	
 
 	// Get the latest commit message for the Git repository at the specified path
 	if *latestCommitMessage {
 
-		value, err := gitreader.GetLatestCommitMessage(listDir)
+		value, err := gitreader.GetLatestCommitMessage(*repoDir)
 		if err != nil {
 			println("Error:", err.Error())
 			return

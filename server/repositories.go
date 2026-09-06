@@ -44,7 +44,11 @@ func listGitRepositories(path string) ([]Repository, error) {
 	var gitRepositories []Repository
 	for _, dir := range directories {
 		fullPath := path + "/" + dir
-		if gitreader.IsGitRepository(fullPath) {
+		isGitRepo, err := gitreader.IsGitRepository(fullPath)
+		if err != nil {
+			return nil, err
+		}
+		if isGitRepo {
 			// Get last commit message
 			LastCommit, err := gitreader.GetLatestCommitMessage(fullPath)
 			if err != nil {
