@@ -85,7 +85,13 @@ func GetLatestCommitMessage(repo string) (string, error) {
 	}
 
 	return commitMessage, nil
-} 
+}
+
+
+func GetAllBranches(repo string) (string, error) {
+	// Implementation for retrieving all branches goes here
+	return "", fmt.Errorf("GetAllBranches not implemented")
+}
 
 func TypeOfGitObject(data string) (string, error) {
 	// Return first part

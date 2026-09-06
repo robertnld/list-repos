@@ -44,6 +44,11 @@ var latestCommitMessage = flag.Bool(
 	false,
 	"print the latest commit message",
 )
+var allBranches = flag.Bool(
+	"branch-all",
+	false,
+	"print all branches (local and remote)",
+)
 
 func main() {
 	flag.Parse()
@@ -60,6 +65,7 @@ func main() {
 		os.Exit(1)
 	}	
 
+
 	// Get the latest commit message for the Git repository at the specified path
 	if *latestCommitMessage {
 
@@ -69,5 +75,16 @@ func main() {
 			return
 		}
 		fmt.Printf("Returned value: \n%s\n", value)
+	}
+
+
+	// Print all branches if the flag is set
+	if *allBranches {
+		branches, err := gitreader.GetAllBranches(*repoDir)
+		if err != nil {
+			println("Error:", err.Error())
+			return
+		}
+		fmt.Printf("All branches:\n%s\n", branches)
 	}
 }
