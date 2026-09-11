@@ -88,3 +88,16 @@ func getCommitMessage(commitObjectPath string) (string, error) {
 	slog.Debug("Commit message", "data", commitMessage)
 	return commitMessage, nil
 }
+
+
+func getActiveBranch(repo string) (string, error) {
+	head, err := getHead(repo)
+	if err != nil {
+		return "", err
+	}
+	if !strings.HasPrefix(head, "ref: refs/heads/") {
+		return "", fmt.Errorf("HEAD is not pointing to a branch")
+	}
+	branch := strings.TrimSpace(head[16:])
+	return branch, nil
+}

@@ -5,6 +5,7 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -88,10 +89,44 @@ func GetLatestCommitMessage(repo string) (string, error) {
 }
 
 
-func GetAllBranches(repo string) (string, error) {
-	// Implementation for retrieving all branches goes here
-	return "", fmt.Errorf("GetAllBranches not implemented")
+func GetAllBranches(repo string) ([]string, error) {
+	var branches []string
+	refsDir := repo + "/.git/refs/heads"
+	activeBranch, err := getActiveBranch(repo)
+	if err != nil {
+		return nil, err
+	}	
+
+	err = filepath.WalkDir(refsDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		branch, err := filepath.Rel(refsDir, path)
+		if err != nil {
+			return err
+		}
+		
+		// Git branch names always use /
+		branch = filepath.ToSlash(branch)
+		if branch == activeBranch {
+			branch = branch  + " *"
+		}
+		branches = append(branches, branch)
+
+		return nil
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	return branches, nil
 }
+
 
 func TypeOfGitObject(data string) (string, error) {
 	// Return first part

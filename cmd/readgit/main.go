@@ -85,6 +85,9 @@ func main() {
 			println("Error:", err.Error())
 			return
 		}
-		fmt.Printf("All branches:\n%s\n", branches)
+
+		for _, branch := range branches {
+			fmt.Println(branch)
+		}
 	}
 }
