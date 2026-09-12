@@ -149,3 +149,30 @@ func TypeOfGitObject(data string) (string, error) {
 	return header, nil
 }
 
+func ListGitRepositories(dir string) ([]string, error) {
+	var gitRepositories []string
+
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			isGitRepo, err := IsGitRepository(path)
+			if err != nil {
+				return err
+			}
+			if isGitRepo {
+				gitRepositories = append(gitRepositories, path)
+				return filepath.SkipDir // Skip further traversal of this directory
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error walking the directory: %v", err)
+	}
+
+	return gitRepositories, nil
+}

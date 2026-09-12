@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"list-repos/gitreader"
 	"log"
 	"net/http"
 )
@@ -22,7 +23,7 @@ const pageTitle = "Repository List"
 
 type pageData struct {
 	Title        string
-	Repositories []Repository
+	Repositories []string
 }
 
 func newServer(cfg config) (*http.ServeMux, error) {
@@ -49,7 +50,7 @@ func newServer(cfg config) (*http.ServeMux, error) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		// Get the list of repositories in the specified path
-		gitRepositories, err := listGitRepositories(cfg.ListDir)
+		gitRepositories, err := gitreader.ListGitRepositories(cfg.ListDir)
 		if err != nil {
 			log.Printf("Error listing Git repositories: %v", err)
 			http.Error(
